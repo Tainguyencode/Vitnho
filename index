@@ -1,0 +1,471 @@
+
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trái tim lớn từ nhiều trái tim nhỏ — Hoạt hình</title>
+  <style>
+    :root{
+      --bg1: #2d1b69;
+      --bg2: #1a0d3a;
+      --star-color: rgba(255,255,255,0.8);
+    }
+    html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    body{
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(138,43,226,0.15), transparent),
+                  linear-gradient(180deg,var(--bg1),var(--bg2));
+      display:flex;align-items:center;justify-content:center;overflow:hidden;
+      position:relative;
+      padding: 0 20px;
+      gap: 20px;
+    }
+
+    /* Starry background */
+    body::before{
+      content:"";
+      position:fixed;
+      top:0;left:0;right:0;bottom:0;
+      background-image: 
+        radial-gradient(2px 2px at 20px 30px, var(--star-color), transparent),
+        radial-gradient(2px 2px at 40px 70px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 90px 40px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 130px 80px, var(--star-color), transparent),
+        radial-gradient(2px 2px at 160px 30px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 200px 60px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 250px 20px, var(--star-color), transparent),
+        radial-gradient(2px 2px at 280px 70px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 320px 40px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 360px 80px, var(--star-color), transparent),
+        radial-gradient(2px 2px at 400px 30px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 440px 60px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 480px 20px, var(--star-color), transparent),
+        radial-gradient(2px 2px at 520px 70px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 560px 40px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 600px 80px, var(--star-color), transparent),
+        radial-gradient(2px 2px at 640px 30px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 680px 60px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 720px 20px, var(--star-color), transparent),
+        radial-gradient(2px 2px at 760px 70px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 800px 40px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 840px 80px, var(--star-color), transparent),
+        radial-gradient(2px 2px at 880px 30px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 920px 60px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 960px 20px, var(--star-color), transparent);
+      background-repeat: repeat;
+      background-size: 1000px 1000px;
+      animation: twinkle 4s ease-in-out infinite alternate;
+      pointer-events:none;
+      z-index:-1;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    .stage{
+      position:relative;
+      flex: 0 0 70%;
+      width: 100%;
+      height: min(90vh, 900px);
+      display:block;
+      filter: drop-shadow(0 18px 30px rgba(0,0,0,0.45));
+    }
+
+    /* Heart container (receives animations/transforms) */
+    .heart{
+      position:absolute;
+      transform-origin:center center;
+      will-change: transform, opacity;
+    }
+
+    /* Scalable heart shape inside the container */
+    .heart > .core{
+      position:absolute; inset:0;
+      background: linear-gradient(180deg,#ff6b9a,#ff3355);
+      transform: rotate(45deg);
+      border-radius: 4px;
+    }
+
+    /* Two circular lobes of the heart, sized relative to the container */
+    .heart > .core::before,
+    .heart > .core::after{
+      content:""; position:absolute;
+      width:100%; height:100%;
+      background: inherit;
+      border-radius:50%;
+    }
+    /* top lobe */
+    .heart > .core::before{ top:-50%; left:0; }
+    /* left lobe */
+    .heart > .core::after{ left:-50%; top:0; }
+
+
+    /* animations - each heart will get randomized durations via inline style from JS */
+    @keyframes floaty {
+      0%{transform: translateY(0) rotate(0deg) scale(1);}
+      50%{transform: translateY(-12px) rotate(6deg) scale(1.07);}
+      100%{transform: translateY(0) rotate(0deg) scale(1);}
+    }
+
+    /* central pulse for larger hearts */
+    @keyframes pulseBig{
+      0%{transform: scale(1);}
+      50%{transform: scale(1.08);} 
+      100%{transform: scale(1);}
+    }
+
+    /* Text container for left side */
+    .text-container {
+      flex: 0 0 25%;
+      text-align: left;
+      pointer-events: none;
+      z-index: 10;
+      padding: 10px;
+      max-width: 300px;
+    }
+
+    .text-container h1 {
+      color: #ff6b9a;
+      font-size: clamp(20px, 3vw, 32px);
+      margin: 0 0 18px 0;
+      text-shadow: 0 4px 20px rgba(255, 107, 154, 0.5);
+      font-weight: 600;
+    }
+
+    .text-container h2 {
+      color: #ffb3c7;
+      font-size: clamp(16px, 2.4vw, 22px);
+      margin: 0 0 16px 0;
+      text-shadow: 0 4px 20px rgba(255, 179, 199, 0.4);
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .text-container h3 {
+      color: #dda0dd;
+      font-size: clamp(13px, 2vw, 18px);
+      margin: 0;
+      text-shadow: 0 4px 20px rgba(221, 160, 221, 0.4);
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    /* Decorative icons after headings */
+    .text-container h1::after{
+      content: " \1F496"; /* sparkling heart */
+      margin-left: 8px;
+      display: inline-block;
+      animation: emojiPulse 1.6s ease-in-out infinite;
+    }
+    .text-container h2::after{
+      content: " \2764\FE0F"; /* red heart */
+      margin-left: 8px;
+      display: inline-block;
+      animation: emojiPulse 1.8s ease-in-out infinite;
+    }
+    .text-container h3::after{
+      content: " \1F970"; /* smiling face with hearts */
+      margin-left: 6px;
+      display: inline-block;
+      animation: emojiPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes emojiPulse{
+      0%,100%{ transform: translateY(0) scale(1); }
+      50%{ transform: translateY(-2px) scale(1.08); }
+    }
+
+    /* ===== QR Trigger Button & Panel ===== */
+    .qr-btn{
+      position: fixed; right: 16px; bottom: 16px;
+      background: linear-gradient(180deg,#ff79b0,#ff3b6a);
+      color: #fff; border: none; border-radius: 999px;
+      padding: 10px 16px; font-weight: 600; cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+      transition: transform .15s ease, opacity .2s ease;
+      z-index: 1200;
+    }
+    .qr-btn:hover{ transform: translateY(-2px); }
+
+    .qr-panel{
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(2px);
+      z-index: 1100;
+    }
+    .qr-card{
+      background: #1c1240; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 18px 18px 12px; text-align:center;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      color: #eee;
+    }
+    .qr-card h4{ margin: 0 0 10px; font-weight:600; color:#ffd6e0; }
+    .qr-card img{ width: 260px; height: 260px; image-rendering: pixelated; }
+    .qr-close{ margin-top:10px; background:#2d1b69; color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer; }
+
+    /* overlay text */
+    .overlay{
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      color:rgba(255,255,255,0.9);text-align:center;pointer-events:none;
+      text-shadow:0 6px 30px rgba(0,0,0,0.6);
+    }
+    .overlay h2{font-size: clamp(18px,2.8vw,36px);margin:0;color:#ff6b9a;text-shadow:0 4px 20px rgba(255, 107, 154, 0.5);}
+
+    /* small responsiveness tweak to make hearts crisp on small screens */
+    @media (max-width:420px){
+      .heart{filter: drop-shadow(0 6px 12px rgba(0,0,0,0.35));}
+    }
+  </style>
+</head>
+  <body>
+    <div class="text-container">
+      <h1>Gửi Vanh (Vịt nhỏ) nhỏ nhỏ dễ thương nè</h1>
+      <h2>Anh muốn nói là anh hình như thích em rùi sao ý.</h2>
+      <h3>Anh xin lỗi em vì qua đã làm em giận. 
+        Xin lùi để em chờ lâu nhé!.Em đừng giận nữa xấu lém.
+         Anh thật sự đã yêu em rồi.
+        Anh biết sẽ hơi bất ngờ nhưng nếu có thể a muốn mình yêu nhau a sẽ chăm sóc em nhìu nhìu lun.
+        Em cười đẹp lém. Anh thích em Nguyễn Thị Vân Anh. Anh yêu em.</h3>
+    </div>
+    <div class="stage" id="stage">
+    <div class="overlay">
+        <h2>I LOVE YOU</h2>
+    </div>
+  </div>
+
+  <!-- Floating QR trigger -->
+  <button class="qr-btn" id="qrBtn">QR</button>
+  <div class="qr-panel" id="qrPanel" aria-hidden="true">
+    <div class="qr-card">
+      <h4>Quét để mở trang này</h4>
+      <img id="qrImage" alt="QR to this page" referrerpolicy="no-referrer" />
+      <div>
+        <button class="qr-close" id="qrClose">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* CONFIG */
+    const COUNT = 250;            // số lượng trái tim
+    const SIZE_MIN = 8;          // kích thước nhỏ nhất (px)
+    const SIZE_MAX = 64;         // kích thước lớn nhất (px)
+    const AREA_SCALE = 0.9;      // tỷ lệ vùng vẽ so với container
+    const COLOR_PALETTE = [
+      ['#ff6b9a','#ff3355'],
+      ['#ffb3c7','#ff6b9a'],
+      ['#ffd6e0','#ff9bb8'],
+      ['#ff8fa3','#ff4f6d']
+    ];
+
+    const stage = document.getElementById('stage');
+    const rect = stage.getBoundingClientRect();
+    const W = rect.width; const H = rect.height;
+
+    // parametric heart curve (classic) scaled to fit box
+    // x = 16 sin^3(t), y = 13 cos(t) - 5 cos(2t) - 2 cos(3t) - cos(4t)
+    // t in [0, 2pi]
+
+    // Precompute points along curve to sample distribution; later we jitter points randomly inward for fill
+    function heartPoint(t){
+      const x = 16 * Math.pow(Math.sin(t),3);
+      const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+      return {x,y};
+    }
+
+    // Generate a set of normalized points that fill the heart area by sampling polar/radius
+    function generateHeartSamples(n){
+      const samples = [];
+      // find bounding box of base curve
+      let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+      const curve = [];
+      for(let i=0;i<360;i++){
+        const p = heartPoint(i * Math.PI/180);
+        curve.push(p);
+        if(p.x<minX)minX=p.x; if(p.x>maxX)maxX=p.x;
+        if(p.y<minY)minY=p.y; if(p.y>maxY)maxY=p.y;
+      }
+      // normalize factor to map to container
+      const heartWidth = maxX - minX;
+      const heartHeight = maxY - minY;
+
+      // center on stage
+      const centerX = W/2; const centerY = H/2;
+      const scale = Math.min((W*AREA_SCALE)/heartWidth, (H*AREA_SCALE)/heartHeight);
+
+      // Use rejection sampling: pick random points inside bounding box and keep those inside the heart polygon path.
+      // Approximate the heart area by checking distance to nearest curve in radial direction — simpler: test using implicit function approximation
+
+      // We'll use an implicit heart equation approximation in normalized coordinates for faster inside tests.
+      // Convert (X,Y) in scaled units to normalized u,v where base curve roughly fits in [-17,17] x [-17,17]
+      function isInsideBase(x,y){
+        // This implicit function is not perfect but good enough for sampling: (x^2 + y^2 -1)^3 - x^2 y^3 <= 0  (a popular heart implicit)
+        const X = x/scale;
+        const Y = y/scale;
+        const val = Math.pow((X*X + Y*Y - 1),3) - (X*X) * Math.pow(Y,3);
+        return val <= 0;
+      }
+
+      const bboxW = heartWidth * scale;
+      const bboxH = heartHeight * scale;
+      const left = centerX - bboxW/2; const top = centerY - bboxH/2;
+
+      let attempts=0;
+      while(samples.length < n && attempts < n*20){
+        attempts++;
+        const rx = left + Math.random()*bboxW;
+        const ry = top + Math.random()*bboxH;
+        if(isInsideBase(rx - centerX, (ry - centerY) * -1)){
+          samples.push({x:rx,y:ry});
+        }
+      }
+      // fallback: if not enough due to small area, fill remaining by sampling along curve with jitter
+      let idx=0;
+      while(samples.length < n){
+        const t = (idx++/n) * Math.PI * 2;
+        const p = heartPoint(t);
+        const rx = centerX + p.x * scale * 0.9 * (0.7 + Math.random()*0.6);
+        const ry = centerY - p.y * scale * 0.9 * (0.7 + Math.random()*0.6);
+        samples.push({x:rx,y:ry});
+      }
+
+      return samples;
+    }
+
+    function pickColor(){
+      const pair = COLOR_PALETTE[Math.floor(Math.random()*COLOR_PALETTE.length)];
+      return pair;
+    }
+
+    // create hearts
+    const points = generateHeartSamples(COUNT);
+    for(let i=0;i<points.length;i++){
+      const p = points[i];
+      const size = Math.round(SIZE_MIN + Math.random()*(SIZE_MAX - SIZE_MIN));
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.style.width = size + 'px';
+      heart.style.height = size + 'px';
+      // position by centering the rotated square (since transform rotates about center)
+      heart.style.left = (p.x - size/2) + 'px';
+      heart.style.top  = (p.y - size/2) + 'px';
+
+      // color
+      const colPair = pickColor();
+      heart.style.setProperty('--c1', colPair[0]);
+      heart.style.setProperty('--c2', colPair[1]);
+      // apply gradient via inner element
+      const core = document.createElement('div');
+      core.className = 'core';
+      core.style.background = `linear-gradient(180deg, ${colPair[0]}, ${colPair[1]})`;
+      heart.appendChild(core);
+
+      // animation timings randomized
+      const dur = (2 + Math.random()*3).toFixed(2) + 's';
+      const delay = (Math.random()*-4).toFixed(2) + 's';
+      const rot = (Math.random()*40 - 20).toFixed(2) + 'deg';
+
+      heart.style.animation = `floaty ${dur} ease-in-out ${delay} infinite`;
+      // small rotation offset so hearts don't look identical
+      heart.style.transform = `rotate(${rot})`;
+
+      // depth: make hearts farther/back with lower opacity and smaller shadow
+      const depth = Math.random();
+      heart.style.opacity = (0.7 + depth*0.35).toFixed(2);
+      heart.style.zIndex = Math.floor(1000 + depth*100);
+
+      // some hearts pulse more strongly if large and near center
+      const cx = W/2; const cy = H/2;
+      const distCenter = Math.hypot(p.x - cx, p.y - cy);
+      const maxDist = Math.hypot(W/2, H/2);
+      const closeness = 1 - distCenter / maxDist;
+      if(size > SIZE_MAX*0.55 && closeness > 0.45 && Math.random() > 0.45){
+        heart.style.animation += `, pulseBig ${1.6 + Math.random()*0.8}s ease-in-out ${delay} infinite`;
+      }
+
+      stage.appendChild(heart);
+
+      // subtle random drifting using requestAnimationFrame per-heart (gives nicer unique motion)
+      (function(node, px, py, s){
+        const amp = 6 + Math.random()*10;
+        const freq = 0.6 + Math.random()*1.6;
+        const phase = Math.random()*Math.PI*2;
+        let t0 = performance.now();
+        function tick(now){
+          const t = (now - t0)/1000;
+          const dx = Math.sin(t*freq + phase) * amp * (1 - s/100);
+          const dy = Math.cos(t*freq*0.9 + phase*0.4) * (amp*0.6) * (1 - s/100);
+          node.style.transform = `translate(${dx.toFixed(2)}px,${dy.toFixed(2)}px) rotate(${rot})`;
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      })(heart, p.x, p.y, size);
+    }
+
+    // optional: interactive tweak — click to add a burst of hearts
+    stage.addEventListener('click', (e)=>{
+      for(let k=0;k<18;k++){
+        const size = Math.round(10 + Math.random()*40);
+        const div = document.createElement('div'); div.className='heart';
+        div.style.width = size+'px'; div.style.height = size+'px';
+        div.style.left = (e.clientX - size/2) + 'px'; div.style.top = (e.clientY - size/2) + 'px';
+        const col = pickColor();
+        const core = document.createElement('div'); core.className='core';
+        core.style.background = `linear-gradient(180deg, ${col[0]}, ${col[1]})`;
+        div.appendChild(core);
+        const dur = (0.9 + Math.random()*1.6).toFixed(2) + 's';
+        div.style.animation = `floaty ${dur} ease-in-out 0s infinite`;
+        stage.appendChild(div);
+        // let them fade and remove later
+        setTimeout(()=>{ div.style.transition='opacity 800ms, transform 800ms'; div.style.opacity=0; }, 2000);
+        setTimeout(()=>{ div.remove() }, 3000);
+      }
+    });
+
+    // resize handler for responsiveness (recreate content)
+    let resizeTimer;
+    window.addEventListener('resize', ()=>{
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(()=>{
+        // simply reload page for simplicity to re-generate based on new container size
+        location.reload();
+      },200);
+    });
+
+    // ===== QR feature =====
+    const qrBtn = document.getElementById('qrBtn');
+    const qrPanel = document.getElementById('qrPanel');
+    const qrImg = document.getElementById('qrImage');
+    const qrClose = document.getElementById('qrClose');
+
+    function buildQRUrl(text){
+      const data = encodeURIComponent(text);
+      // Primary: QRServer
+      return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${data}`;
+    }
+
+    function openQR(){
+      const url = location.href;
+      qrImg.src = buildQRUrl(url);
+      qrPanel.style.display = 'flex';
+      qrPanel.setAttribute('aria-hidden','false');
+    }
+    function closeQR(){
+      qrPanel.style.display = 'none';
+      qrPanel.setAttribute('aria-hidden','true');
+    }
+    qrBtn.addEventListener('click', openQR);
+    qrClose.addEventListener('click', closeQR);
+    qrPanel.addEventListener('click', (e)=>{ if(e.target === qrPanel) closeQR(); });
+
+    // Fallback if first provider fails
+    qrImg.addEventListener('error', ()=>{
+      const url = location.href;
+      const data = encodeURIComponent(url);
+      // Fallback: goqr.me
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${data}`;
+    }, { once: true });
+  </script>
+</body>
+</html>
